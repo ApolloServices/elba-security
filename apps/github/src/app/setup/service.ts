@@ -1,5 +1,6 @@
 import { getInstallation } from '@/repositories/github/installation';
-import { insertInstallation, insertUsersSyncJob } from './data';
+import { inngest } from '../api/inngest/client';
+import { insertInstallation } from './data';
 
 export const setupInstallation = async (installationId: number, elbaOrganizationId: string) => {
   const installation = await getInstallation(installationId);
@@ -19,9 +20,9 @@ export const setupInstallation = async (installationId: number, elbaOrganization
     elbaOrganizationId,
   });
 
-  await insertUsersSyncJob({
-    installationId: installation.id,
-    priority: 1,
+  await inngest.send({
+    name: 'users/scan',
+    data: { installationId: installation.id, isFirstScan: true },
   });
 
   return appInstallation;
